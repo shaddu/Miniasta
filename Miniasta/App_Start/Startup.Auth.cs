@@ -8,6 +8,7 @@ using Owin;
 using Miniasta.Models;
 using Microsoft.Web.WebPages.OAuth;
 using DotNetOpenAuth.AspNet.Clients;
+using DotNetOpenAuth.AspNet.Extentions;
 
 namespace Miniasta
 {
@@ -87,13 +88,13 @@ namespace Miniasta
             //    consumerKey: ConfigurationManager.AppSettings["consumerKey"],
             //    consumerSecret: ConfigurationManager.AppSettings["consumerSecret"]);
 
-            OAuthWebSecurity.RegisterFacebookClient(
-                appId: "xxxxxxxxxx",
-                appSecret: "xxxxxxxxxxxxxxxx");
+            //OAuthWebSecurity.RegisterFacebookClient(
+            //    appId: "xxxxxxxxxx",
+            //    appSecret: "xxxxxxxxxxxxxxxx");
 
             // OAuthWebSecurity.RegisterClient(new );
 
-            OAuthWebSecurity.RegisterClient(new OpenIdClient("instagram", "xxxxx"));
+            OAuthWebSecurity.RegisterClient(new InstagramClient("81749a09d61c420ea2586ba54b426dcf", "e8a92a2953e2439ea83ddbd6c46c9b22"),"instagram",null);
 
             //OAuthWebSecurity.RegisterGoogleClient();
             

@@ -54,7 +54,8 @@
     <div class="col-md-4">
         <section id="socialLoginForm">
          @*@Html.Partial("_ExternalLoginsListPartial", new ExternalLoginListViewModel { ReturnUrl = ViewBag.ReturnUrl })*@
-            @Html.Partial("_ExternalLoginsListPartial", OAuthWebSecurity.RegisteredClientData)
+            @*@Html.Partial("_ExternalLoginsListPartial", OAuthWebSecurity.RegisteredClientData)*@
+            @Html.Action("ExternalLoginsList", new { ReturnUrl = ViewBag.ReturnUrl })
         </section>
     </div>
 </div>
