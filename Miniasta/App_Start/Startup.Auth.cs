@@ -6,9 +6,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using Miniasta.Models;
-using Microsoft.Web.WebPages.OAuth;
-using DotNetOpenAuth.AspNet.Clients;
-using DotNetOpenAuth.AspNet.Extentions;
+using Aminjam.Owin.Security.Instagram;
 
 namespace Miniasta
 {
@@ -66,38 +64,11 @@ namespace Miniasta
             //    ClientId = "",
             //    ClientSecret = ""
             //});
-        }
-    }
-
-    public static class AuthConfig
-    {
-        public static void RegisterAuth()
-        {
-            // To let users of this site log in using their accounts from other sites such as Microsoft, Facebook, and Twitter,
-            // you must update this site. For more information visit http://go.microsoft.com/fwlink/?LinkID=252166
-
-            //OAuthWebSecurity.RegisterMicrosoftClient(
-            //    clientId: "",
-            //    clientSecret: "");
-
-            //OAuthWebSecurity.RegisterClient(new TwitterClientEx(
-            //    consumerKey: ConfigurationManager.AppSettings["consumerKey"],
-            //    consumerSecret: ConfigurationManager.AppSettings["consumerSecret"]), "Twitter", null);
-
-            //OAuthWebSecurity.RegisterTwitterClient(
-            //    consumerKey: ConfigurationManager.AppSettings["consumerKey"],
-            //    consumerSecret: ConfigurationManager.AppSettings["consumerSecret"]);
-
-            //OAuthWebSecurity.RegisterFacebookClient(
-            //    appId: "xxxxxxxxxx",
-            //    appSecret: "xxxxxxxxxxxxxxxx");
-
-            // OAuthWebSecurity.RegisterClient(new );
-
-            OAuthWebSecurity.RegisterClient(new InstagramClient("81749a09d61c420ea2586ba54b426dcf", "e8a92a2953e2439ea83ddbd6c46c9b22"),"instagram",null);
-
-            //OAuthWebSecurity.RegisterGoogleClient();
-            
+            app.UseInstagramAuthentication(new InstagramAuthenticationOptions
+            {
+                ClientId = "81749a09d61c420ea2586ba54b426dcf",
+                ClientSecret = "e8a92a2953e2439ea83ddbd6c46c9b22"
+            });
         }
     }
 }

@@ -9,10 +9,6 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Miniasta.Models;
-using Microsoft.Web.WebPages.OAuth;
-using DotNetOpenAuth.AspNet;
-using System.Collections.Generic;
-using WebMatrix.WebData;
 
 namespace Miniasta.Controllers
 {
@@ -63,18 +59,6 @@ namespace Miniasta.Controllers
         {
             ViewBag.ReturnUrl = returnUrl;
             return View();
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult ExternalLogin(string provider, string returnUrl)
-        {
-            //returnUrl = Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl });
-            //return Redirect("https://www.facebook.com/dialog/oauth?client_id=" + new Facebook().AppID + "&redirect_uri=" + HttpUtility.HtmlEncode("h" + System.Web.HttpContext.Current.Request.Url.ToString().Substring("h", "/Account") + returnUrl) + "%3F__provider__%3Dfacebook&scope=email");
-            ///Account/ExternalLoginCallback?__provider__=instagram&__sid__=6ef6ce857488487a95a7ce6c5f4f7167&code=b0d0ba60c95443f089e122af70ef2109
-            ExternalLoginResult result = new ExternalLoginResult(provider, Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }));
-            return result;
         }
 
         //
@@ -292,7 +276,7 @@ namespace Miniasta.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult ExternalLogin_owin(string provider, string returnUrl)
+        public ActionResult ExternalLogin(string provider, string returnUrl)
         {
             // Request a redirect to the external login provider
             return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
@@ -332,91 +316,11 @@ namespace Miniasta.Controllers
             }
             return RedirectToAction("VerifyCode", new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });
         }
-        [AllowAnonymous]
-        public ActionResult ExternalLoginCallback(string returnUrl)
-        {
-             AuthenticationResult result = OAuthWebSecurity.VerifyAuthentication(Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }));
-
-            //string code = Request.QueryString["code"];
-            //string returnUrl1 = Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl });
-
-            //IDictionary<string, string> userData = new Facebook().GetUserData(code, HttpUtility.HtmlEncode("h" + System.Web.HttpContext.Current.Request.Url.ToString().Substring("h", "/Account") + returnUrl1));
-            //var userData = new
-            //AuthenticationResult result = new AuthenticationResult(isSuccessful: true, provider: "facebook", providerUserId: userData["id"], userName: userData["username"], extraData: userData);
-
-            var loginInfo =  AuthenticationManager.GetExternalLoginInfo();
-            return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = result.UserName });
-            //if (!result.IsSuccessful)
-            //{
-            //    return RedirectToAction("ExternalLoginFailure");
-            //}
-            //if (OAuthWebSecurity.Login(result.Provider, result.ProviderUserId, createPersistentCookie: true))
-            //{
-            //    return RedirectToLocal(returnUrl);
-            //}
-            //ExtraData extraData = null;
-            //if (User.Identity.IsAuthenticated)
-            //{
-            //    // If the current user is logged in add the new account
-            //    OAuthWebSecurity.CreateOrUpdateAccount(result.Provider, result.ProviderUserId, User.Identity.Name);
-            //    return RedirectToLocal(returnUrl);
-            //}
-            //else
-            //{
-            //    // User is new, ask for their desired membership name
-            //    string loginData = OAuthWebSecurity.SerializeProviderUserId(result.Provider, result.ProviderUserId);
-            //    ViewBag.ProviderDisplayName = OAuthWebSecurity.GetOAuthClientData(result.Provider).DisplayName;
-            //    ViewBag.ReturnUrl = returnUrl;
-            //    if (result.ExtraData != null)
-            //    {
-            //        extraData = new ExtraData
-            //        {
-            //            Description = result.ExtraData.ContainsKey("description") ? result.ExtraData["description"] : string.Empty,
-            //            Location = result.ExtraData.ContainsKey("location") ? result.ExtraData["location"] : string.Empty,
-            //            Name = result.ExtraData.ContainsKey("name") ? result.ExtraData["name"] : String.Empty,
-            //            AccessToken = result.ExtraData.ContainsKey("accesstoken") ? result.ExtraData["accesstoken"] : string.Empty,
-            //            Url = result.ExtraData.ContainsKey("profile_image_url") ? result.ExtraData["profile_image_url"] : string.Empty,
-            //            ParentUserProfile = new UserProfile { UserName = result.UserName }
-            //        };
-            //        //using (UsersContext db = new UsersContext())
-            //        //{
-            //        //    db.Entry(extraData).State = System.Data.EntityState.Added;
-            //        //    db.SaveChanges();
-            //        //}
-            //    }
-            //return View("ExternalLoginConfirmation", new RegisterExternalLoginModel
-            //{
-            //    UserName = result.UserName,
-            //    ExternalLoginData = loginData,
-            //    AuthenticationProviderData = extraData
-            //});
-          
-        }
-        [ChildActionOnly]
-        public ActionResult RemoveExternalLogins()
-        {
-            ICollection<OAuthAccount> accounts = OAuthWebSecurity.GetAccountsFromUserName(User.Identity.Name);
-            List<ExternalLogin> externalLogins = new List<ExternalLogin>();
-            foreach (OAuthAccount account in accounts)
-            {
-                AuthenticationClientData clientData = OAuthWebSecurity.GetOAuthClientData(account.Provider);
-
-                externalLogins.Add(new ExternalLogin
-                {
-                    Provider = account.Provider,
-                    ProviderDisplayName = clientData.DisplayName,
-                    ProviderUserId = account.ProviderUserId,
-                });
-            }
-
-            ViewBag.ShowRemoveButton = externalLogins.Count > 1 || OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
-            return PartialView("_RemoveExternalLoginsPartial", externalLogins);
-        }
 
         //
         // GET: /Account/ExternalLoginCallback
         [AllowAnonymous]
-        public async Task<ActionResult> ExternalLoginCallback_old(string returnUrl)
+        public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
         {
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
             if (loginInfo == null)
@@ -490,13 +394,6 @@ namespace Miniasta.Controllers
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("Index", "Home");
         }
-        [AllowAnonymous]
-        [ChildActionOnly]
-        public ActionResult ExternalLoginsList(string returnUrl)
-        {
-            ViewBag.ReturnUrl = returnUrl;
-            return PartialView("_ExternalLoginsListPartial", OAuthWebSecurity.RegisteredClientData);
-        }
 
         //
         // GET: /Account/ExternalLoginFailure
@@ -555,22 +452,6 @@ namespace Miniasta.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        internal class ExternalLoginResult : ActionResult
-        {
-            public ExternalLoginResult(string provider, string returnUrl)
-            {
-                Provider = provider;
-                ReturnUrl = returnUrl;
-            }
-
-            public string Provider { get; private set; }
-            public string ReturnUrl { get; private set; }
-
-            public override void ExecuteResult(ControllerContext context)
-            {
-                OAuthWebSecurity.RequestAuthentication(Provider, ReturnUrl);
-            }
-        }
         internal class ChallengeResult : HttpUnauthorizedResult
         {
             public ChallengeResult(string provider, string redirectUri)
