@@ -7,6 +7,8 @@ using Microsoft.Owin.Security.Google;
 using Owin;
 using Miniasta.Models;
 using Aminjam.Owin.Security.Instagram;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Miniasta
 {
@@ -64,11 +66,30 @@ namespace Miniasta
             //    ClientId = "",
             //    ClientSecret = ""
             //});
-            app.UseInstagramAuthentication(new InstagramAuthenticationOptions
+
+            var InstaOptions = new InstagramAuthenticationOptions()
             {
                 ClientId = "81749a09d61c420ea2586ba54b426dcf",
-                ClientSecret = "e8a92a2953e2439ea83ddbd6c46c9b22"
-            });
+                ClientSecret = "e8a92a2953e2439ea83ddbd6c46c9b22",
+                Provider = new InstagramAuthenticationProvider()
+                {
+                    OnAuthenticated = (context) =>
+                    {
+                        context.Identity.AddClaim(new Claim("urn:instagram:accesstoken", context.AccessToken));
+                        return Task.FromResult(0);
+                    }
+                }
+            }; 
+            InstaOptions.Scope.Add("public_content");
+            InstaOptions.Scope.Add("relationships"); 
+            InstaOptions.Scope.Add("follower_list");
+
+            app.UseInstagramAuthentication(InstaOptions);
+            //app.UseInstagramAuthentication(new InstagramAuthenticationOptions
+            //{
+            //    ClientId = "81749a09d61c420ea2586ba54b426dcf",
+            //    ClientSecret = "e8a92a2953e2439ea83ddbd6c46c9b22"
+            //});
         }
     }
 }

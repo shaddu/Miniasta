@@ -13,7 +13,7 @@
         {
             // todo add settings where appropriate to switch server & database in your own application
             var client = new MongoClient("mongodb://localhost:27017");
-            var database = client.GetDatabase("mydb");
+            var database = client.GetDatabase("Miniasta");
             var users = database.GetCollection<ApplicationUser>("users");
             var roles = database.GetCollection<IdentityRole>("roles");
             return new ApplicationIdentityContext(users, roles);

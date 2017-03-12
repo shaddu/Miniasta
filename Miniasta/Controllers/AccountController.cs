@@ -57,7 +57,7 @@ namespace Miniasta.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
-            ViewBag.ReturnUrl = "/Manage/SetPassword";
+            ViewBag.ReturnUrl = "/Home/Insights";
             return View();
         }
 
@@ -323,6 +323,8 @@ namespace Miniasta.Controllers
         public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
         {
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
+            var accessToken = loginInfo.ExternalIdentity.Claims.Where(c => c.Type.Equals("urn:instagram:accesstoken")).Select(c => c.Value).FirstOrDefault();
+            TempData["accessToken"] = accessToken;
             if (loginInfo == null)
             {
                 return RedirectToAction("Login");
@@ -343,7 +345,10 @@ namespace Miniasta.Controllers
                     // If the user does not have an account, then prompt the user to create an account
                     ViewBag.ReturnUrl = returnUrl;
                     ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
+                   
+                    //return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.ExternalIdentity.Claims.First(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").ToString() });
+                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.DefaultUserName });
+
             }
         }
 
