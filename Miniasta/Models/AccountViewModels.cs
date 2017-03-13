@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Miniasta.Models
@@ -108,5 +109,19 @@ namespace Miniasta.Models
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
+    }
+
+    public class InstaUsers
+    {
+
+        public string username { get; set; }
+        public string profile_picture { get; set; }
+        public string full_name { get; set; }
+        public string id { get; set; }
+    }
+    public class InstaUsersVM
+    {
+        [JsonProperty("data")]
+        public List<InstaUsers> Miniasta { get; set; }
     }
 }
