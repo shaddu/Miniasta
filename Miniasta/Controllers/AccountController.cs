@@ -323,8 +323,7 @@ namespace Miniasta.Controllers
         public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
         {
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
-            var accessToken = loginInfo.ExternalIdentity.Claims.Where(c => c.Type.Equals("urn:instagram:accesstoken")).Select(c => c.Value).FirstOrDefault();
-            TempData["accessToken"] = accessToken;
+            var user = await UserManager.FindAsync(loginInfo.Login);
             if (loginInfo == null)
             {
                 return RedirectToAction("Login");
@@ -335,6 +334,7 @@ namespace Miniasta.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    await StoreInstaAuthToken(user);
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -345,13 +345,24 @@ namespace Miniasta.Controllers
                     // If the user does not have an account, then prompt the user to create an account
                     ViewBag.ReturnUrl = returnUrl;
                     ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                   
-                    //return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.ExternalIdentity.Claims.First(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").ToString() });
                     return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.DefaultUserName });
 
             }
         }
-
+        private async Task StoreInstaAuthToken(ApplicationUser user)
+        {
+            var claimsIdentity = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
+            if (claimsIdentity != null)
+            {
+                // Retrieve the existing claims for the user and add the instagram token
+                var currentClaims = await UserManager.GetClaimsAsync(user.Id);
+                var AccessToken = claimsIdentity.FindAll("urn:instagram:accesstoken").First();
+                if (currentClaims.Count() <= 0)
+                {
+                    await UserManager.AddClaimAsync(user.Id, AccessToken);
+                }
+            }
+        }
         //
         // POST: /Account/ExternalLoginConfirmation
         [HttpPost]
@@ -377,6 +388,7 @@ namespace Miniasta.Controllers
                 if (result.Succeeded)
                 {
                     result = await UserManager.AddLoginAsync(user.Id, info.Login);
+                    await StoreInstaAuthToken(user);
                     if (result.Succeeded)
                     {
                         await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
