@@ -9,6 +9,7 @@ using Miniasta.Models;
 using Aminjam.Owin.Security.Instagram;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Configuration;
 
 namespace Miniasta
 {
@@ -69,9 +70,10 @@ namespace Miniasta
 
             var InstaOptions = new InstagramAuthenticationOptions()
             {
-                ClientId = "81749a09d61c420ea2586ba54b426dcf",
-                ClientSecret = "e8a92a2953e2439ea83ddbd6c46c9b22",
-                Provider = new InstagramAuthenticationProvider()
+                ClientId = ConfigurationManager.AppSettings["ClientId"],
+                ClientSecret = ConfigurationManager.AppSettings["ClientSecret"],
+
+            Provider = new InstagramAuthenticationProvider()
                 {
                     OnAuthenticated = (context) =>
                     {
