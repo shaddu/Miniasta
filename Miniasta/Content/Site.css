@@ -42,3 +42,6 @@ textarea {
     font-size: 18px;
     line-height: 70px;
 }
+.navbar {
+        background: rgba(206, 201, 201, 0.21);
+}
