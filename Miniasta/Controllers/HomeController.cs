@@ -38,7 +38,10 @@ namespace Miniasta.Controllers
             var identity = (ClaimsIdentity)User.Identity;
             IEnumerable<Claim> claims = identity.Claims;
             var token = identity.FindAll("urn:instagram:accesstoken").First().Value;
-
+            if(token == null && User.Identity.GetUserId() != null)
+            {
+                return RedirectToAction("Index", "Manage");
+            }
             Uri follows = new Uri(" https://api.instagram.com/v1/users/self/follows?access_token=" + token);
             Uri follower = new Uri(" https://api.instagram.com/v1/users/self/followed-by?access_token=" + token);
             Uri requestedby = new Uri(" https://api.instagram.com/v1/users/self/requested-by?access_token=" + token);
