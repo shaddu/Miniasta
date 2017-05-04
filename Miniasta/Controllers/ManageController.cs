@@ -319,9 +319,25 @@ namespace Miniasta.Controllers
                 return RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
             }
             var result = await UserManager.AddLoginAsync(User.Identity.GetUserId(), loginInfo.Login);
+            var currentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            //Add the Facebook Claim
+            await StoreInstaAuthToken(currentUser);
             return result.Succeeded ? RedirectToAction("ManageLogins") : RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
         }
-
+        private async Task StoreInstaAuthToken(ApplicationUser user)
+        {
+            var claimsIdentity = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
+            if (claimsIdentity != null)
+            {
+                // Retrieve the existing claims for the user and add the FacebookAccessTokenClaim
+                var currentClaims = await UserManager.GetClaimsAsync(user.Id);
+                var AccessToken = claimsIdentity.FindAll("urn:instagram:accesstoken").First();
+                if (currentClaims.Count() <= 0)
+                {
+                    await UserManager.AddClaimAsync(user.Id, AccessToken);
+                }
+            }
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing && _userManager != null)

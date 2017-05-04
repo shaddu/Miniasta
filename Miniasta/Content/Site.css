@@ -22,3 +22,26 @@ select,
 textarea {
     max-width: 280px;
 }
+
+.profilepic {
+      height: 75px;
+    width: 75px;
+    border-radius: 36px;
+    padding: 10px;
+}
+
+.list-dec{
+    position: relative;
+    display: block;
+    padding: 8px 17px;
+    margin-bottom: -1px;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    height: 90px;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 70px;
+}
+.navbar {
+        background: rgba(206, 201, 201, 0.21);
+}

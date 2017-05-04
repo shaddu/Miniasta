@@ -6,9 +6,10 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using Miniasta.Models;
-using Microsoft.Web.WebPages.OAuth;
-using DotNetOpenAuth.AspNet.Clients;
-using DotNetOpenAuth.AspNet.Extentions;
+using Aminjam.Owin.Security.Instagram;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Configuration;
 
 namespace Miniasta
 {
@@ -18,7 +19,7 @@ namespace Miniasta
         public void ConfigureAuth(IAppBuilder app)
         {
             // Configure the db context, user manager and signin manager to use a single instance per request
-            app.CreatePerOwinContext(ApplicationDbContext.Create);
+            app.CreatePerOwinContext(ApplicationIdentityContext.Create);
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
             app.CreatePerOwinContext<ApplicationSignInManager>(ApplicationSignInManager.Create);
 
@@ -66,38 +67,31 @@ namespace Miniasta
             //    ClientId = "",
             //    ClientSecret = ""
             //});
-        }
-    }
 
-    public static class AuthConfig
-    {
-        public static void RegisterAuth()
-        {
-            // To let users of this site log in using their accounts from other sites such as Microsoft, Facebook, and Twitter,
-            // you must update this site. For more information visit http://go.microsoft.com/fwlink/?LinkID=252166
+            var InstaOptions = new InstagramAuthenticationOptions()
+            {
+                ClientId = ConfigurationManager.AppSettings["ClientId"],
+                ClientSecret = ConfigurationManager.AppSettings["ClientSecret"],
 
-            //OAuthWebSecurity.RegisterMicrosoftClient(
-            //    clientId: "",
-            //    clientSecret: "");
+            Provider = new InstagramAuthenticationProvider()
+                {
+                    OnAuthenticated = (context) =>
+                    {
+                        context.Identity.AddClaim(new Claim("urn:instagram:accesstoken", context.AccessToken));
+                        return Task.FromResult(0);
+                    }
+                }
+            }; 
+            InstaOptions.Scope.Add("public_content");
+            InstaOptions.Scope.Add("relationships"); 
+            InstaOptions.Scope.Add("follower_list");
 
-            //OAuthWebSecurity.RegisterClient(new TwitterClientEx(
-            //    consumerKey: ConfigurationManager.AppSettings["consumerKey"],
-            //    consumerSecret: ConfigurationManager.AppSettings["consumerSecret"]), "Twitter", null);
-
-            //OAuthWebSecurity.RegisterTwitterClient(
-            //    consumerKey: ConfigurationManager.AppSettings["consumerKey"],
-            //    consumerSecret: ConfigurationManager.AppSettings["consumerSecret"]);
-
-            //OAuthWebSecurity.RegisterFacebookClient(
-            //    appId: "xxxxxxxxxx",
-            //    appSecret: "xxxxxxxxxxxxxxxx");
-
-            // OAuthWebSecurity.RegisterClient(new );
-
-            OAuthWebSecurity.RegisterClient(new InstagramClient("81749a09d61c420ea2586ba54b426dcf", "e8a92a2953e2439ea83ddbd6c46c9b22"),"instagram",null);
-
-            //OAuthWebSecurity.RegisterGoogleClient();
-            
+            app.UseInstagramAuthentication(InstaOptions);
+            //app.UseInstagramAuthentication(new InstagramAuthenticationOptions
+            //{
+            //    ClientId = "81749a09d61c420ea2586ba54b426dcf",
+            //    ClientSecret = "e8a92a2953e2439ea83ddbd6c46c9b22"
+            //});
         }
     }
 }

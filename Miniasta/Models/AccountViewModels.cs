@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Miniasta.Models
@@ -6,7 +7,7 @@ namespace Miniasta.Models
     public class ExternalLoginConfirmationViewModel
     {
         [Required]
-        [Display(Name = "Email")]
+        [Display(Name = "Username")]
         public string Email { get; set; }
     }
 
@@ -109,13 +110,18 @@ namespace Miniasta.Models
         [Display(Name = "Email")]
         public string Email { get; set; }
     }
-    public class ExternalLogin
+
+    public class InstaUsers
     {
-        public string Provider { get; set; }
-        public string ProviderDisplayName { get; set; }
-        public string ProviderUserId { get; set; }
-        public string ProviderAvatarUrl { get; set; }
+
+        public string username { get; set; }
+        public string profile_picture { get; set; }
+        public string full_name { get; set; }
+        public string id { get; set; }
+    }
+    public class InstaUsersVM
+    {
+        [JsonProperty("data")]
+        public List<InstaUsers> Miniasta { get; set; }
     }
 }
-
-
